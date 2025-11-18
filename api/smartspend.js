@@ -1,10 +1,12 @@
-// CommonJS version for Vercel Node runtime
+// api/smartspend.js – CommonJS handler for Vercel
+
 module.exports = async function handler(req, res) {
   // Allow your Replit frontend to call this
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST,OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
+  // Handle CORS preflight
   if (req.method === "OPTIONS") {
     return res.status(200).end();
   }
@@ -14,8 +16,13 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const { message, budgetData } = req.body || {};
+    const { message } = req.body || {};
 
+    if (!message || typeof message !== "string") {
+      return res.status(400).json({ error: "Missing 'message' string in body" });
+    }
+
+    // Call OpenAI Responses API
     const openaiRes = await fetch("https://api.openai.com/v1/responses", {
       method: "POST",
       headers: {
@@ -27,8 +34,7 @@ module.exports = async function handler(req, res) {
         input: `
 You are SmartSpend, a friendly budgeting and spending coach for teenagers.
 
-User message: ${message}
-User budget data: ${JSON.stringify(budgetData)}
+The user says: "${message}"
 
 Give short, clear advice:
 - 2–4 sentences
