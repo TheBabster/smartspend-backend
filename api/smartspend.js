@@ -1,4 +1,5 @@
-export default async function handler(req, res) {
+// CommonJS version for Vercel Node runtime
+module.exports = async function handler(req, res) {
   // Allow your Replit frontend to call this
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST,OPTIONS");
@@ -24,19 +25,33 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         model: "gpt-4.1-mini",
         input: `
-   const data = await openaiRes.json();
+You are SmartSpend, a friendly budgeting and spending coach for teenagers.
 
-   if (!openaiRes.ok) {
-     console.error("OpenAI error:", data);
-     return res.status(500).json({ error: "OpenAI API error" });
-   }
+User message: ${message}
+User budget data: ${JSON.stringify(budgetData)}
 
-   const reply =
-     data?.output?.[0]?.content?.[0]?.text ??
-     "Sorry, I had trouble answering. Please try again.";
+Give short, clear advice:
+- 2–4 sentences
+- Very simple language
+- Say if the purchase looks sensible or not and why.
+        `,
+      }),
+    });
 
-   return res.status(200).json({ reply });
- } catch (err) {
-   console.error(err);
-   return res.status(500).json({ error: "Server error" });
- }
+    const data = await openaiRes.json();
+
+    if (!openaiRes.ok) {
+      console.error("OpenAI error:", data);
+      return res.status(500).json({ error: "OpenAI API error" });
+    }
+
+    const reply =
+      data?.output?.[0]?.content?.[0]?.text ??
+      "Sorry, I had trouble answering. Please try again.";
+
+    return res.status(200).json({ reply });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "Server error" });
+  }
+};
